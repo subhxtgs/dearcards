@@ -48,6 +48,24 @@
     50%{ transform:translateY(-40px) scale(1.3); opacity:0.9;}
   }
 
+  .doodle{
+    position:absolute; pointer-events:none; z-index:1;
+    animation: doodle-drift ease-in-out infinite;
+    opacity:0.35;
+  }
+  @keyframes doodle-drift{
+    0%,100%{ transform:translate(0,0) rotate(var(--r0,0deg)); }
+    50%{ transform:translate(var(--dx,10px), var(--dy,-14px)) rotate(var(--r1,8deg)); }
+  }
+
+  .hint{
+    animation: hint-sway 3.6s ease-in-out infinite;
+  }
+  @keyframes hint-sway{
+    0%,100%{ transform:translateX(-50%) rotate(-1deg); }
+    50%{ transform:translateX(-50%) rotate(1deg); }
+  }
+
   .hint{
     position:fixed; top:9%; left:50%; transform:translateX(-50%);
     color:var(--parchment); font-family:'Cormorant Garamond', serif;
@@ -157,8 +175,16 @@
     color:var(--ink); font-size:17px; opacity:0.55;
     margin:0 0 14px 2px;
     transition: opacity 0.6s ease 0.35s;
+    position:relative;
   }
   .letter-heading.dim{ opacity:0; transition: opacity 0.15s ease; }
+  .letter-heading svg{ display:block; width:78px; height:10px; margin-top:2px; }
+  .letter-heading svg path{
+    fill:none; stroke:var(--wax); stroke-width:1.6; stroke-linecap:round;
+    stroke-dasharray:140; stroke-dashoffset:140;
+    transition: stroke-dashoffset 1s ease 0.5s;
+  }
+  .letter-heading.dim svg path{ stroke-dashoffset:140; transition: stroke-dashoffset 0.15s ease; }
 
   textarea{
     position:relative; z-index:1;
@@ -236,15 +262,36 @@
     border-radius:3px; box-shadow:0 14px 30px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.25);
     pointer-events:none;
   }
+  .scatter-photo-inner{
+    animation: flutter ease-in-out infinite;
+    transform-origin:center;
+  }
+  @keyframes flutter{
+    0%,100%{ transform:rotate(-1.4deg); }
+    50%{ transform:rotate(1.4deg); }
+  }
   .scatter-photo img{
     display:block; width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:1px;
+  }
+  .scatter-photo.tape::before{
+    content:''; position:absolute; top:-9px; left:50%;
+    transform:translateX(-50%) rotate(-4deg);
+    width:44%; height:15px;
+    background:rgba(232,168,124,0.6);
+    box-shadow:0 2px 5px rgba(0,0,0,0.25);
+  }
+  .scatter-photo.pin::after{
+    content:''; position:absolute; top:-6px; left:50%; transform:translateX(-50%);
+    width:9px; height:9px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #d68a9a, var(--wax) 75%);
+    box-shadow:0 2px 4px rgba(0,0,0,0.35);
   }
 
   textarea[readonly]{ cursor:default; }
   textarea[readonly]::placeholder{ opacity:0; }
 
   @media (prefers-reduced-motion: reduce){
-    .envelope-bob, .ember{ animation:none !important; }
+    .envelope-bob, .ember, .doodle, .hint, .scatter-photo-inner{ animation:none !important; }
   }
 </style>
 </head>
@@ -267,7 +314,11 @@
   <div class="letter-anchor" id="letterAnchor">
     <div class="letter-panel" id="letterPanel">
       <div class="close-tab" id="closeTab">fold it back</div>
-      <p class="letter-heading" id="letterHeading">for you &mdash;</p>
+      <p class="letter-heading" id="letterHeading">for you &mdash;
+        <svg viewBox="0 0 78 10" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2,6 Q10,1 18,6 T34,6 T50,6 T66,6 T76,5" />
+        </svg>
+      </p>
       <textarea id="letterText" class="with-tools" placeholder="begin however you like..."></textarea>
       <div class="photo-thumbs" id="photoThumbs"></div>
       <div class="share-row" id="shareRow">
@@ -466,13 +517,18 @@
       const startY = envRect.top + envRect.height / 2 - photoW / 2;
 
       const div = document.createElement('div');
-      div.className = 'scatter-photo';
+      div.className = 'scatter-photo ' + (i % 2 === 0 ? 'tape' : 'pin');
       div.style.width = photoW + 'px';
       div.style.left = startX + 'px';
       div.style.top = startY + 'px';
       div.style.transform = 'scale(0.2) rotate(0deg)';
       div.style.opacity = '0';
-      div.innerHTML = `<img src="${src}" alt="">`;
+      const inner = document.createElement('div');
+      inner.className = 'scatter-photo-inner';
+      inner.style.animationDuration = (3.4 + Math.random()*1.8) + 's';
+      inner.style.animationDelay = (Math.random()*1.5) + 's';
+      inner.innerHTML = `<img src="${src}" alt="">`;
+      div.appendChild(inner);
       scatterLayer.appendChild(div);
 
       setTimeout(()=>{
@@ -531,6 +587,32 @@
     scene.appendChild(e);
   }
 
+  // ambient hand-drawn squiggles for texture — purely decorative
+  const doodlePaths = [
+    '<path d="M2,10 Q9,1 16,10 T30,10" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>', // wave
+    '<path d="M12,4 C6,-2 -2,4 6,10 C14,16 22,10 12,4 Z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>', // heart-ish
+    '<path d="M10,0 L12,7 L19,7 L13,11 L15,18 L10,13 L5,18 L7,11 L1,7 L8,7 Z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/>', // star
+    '<path d="M2,10 C2,4 8,2 12,6 C15,9 12,13 8,11 C6,10 6,7 9,7" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>' // swirl
+  ];
+  for(let i=0;i<6;i++){
+    const d = document.createElement('div');
+    d.className = 'doodle';
+    d.style.color = i % 2 === 0 ? 'var(--amber)' : 'var(--parchment)';
+    d.style.left = (8 + Math.random()*84) + 'vw';
+    d.style.top = (8 + Math.random()*80) + 'vh';
+    const size = 20 + Math.random()*14;
+    d.style.width = size+'px';
+    d.style.height = size+'px';
+    d.style.setProperty('--r0', (Math.random()*16-8)+'deg');
+    d.style.setProperty('--r1', (Math.random()*16-8)+'deg');
+    d.style.setProperty('--dx', (Math.random()*24-12)+'px');
+    d.style.setProperty('--dy', (Math.random()*24-16)+'px');
+    d.style.animationDuration = (10+Math.random()*9)+'s';
+    d.style.animationDelay = (Math.random()*6)+'s';
+    d.innerHTML = `<svg viewBox="0 0 22 20" width="100%" height="100%">${doodlePaths[i % doodlePaths.length]}</svg>`;
+    scene.appendChild(d);
+  }
+
   function safeBounds(){
     const w = envelopePos.offsetWidth || 168;
     const h = envelopePos.offsetHeight || 112;
@@ -557,9 +639,20 @@
     const jitterY = (Math.random()-0.5)*40;
     const x = Math.min(b.maxX, Math.max(b.minX, corners[idx].x + jitterX));
     const y = Math.min(b.maxY, Math.max(b.minY, corners[idx].y + jitterY));
-    envelopePos.style.left = x + 'px';
-    envelopePos.style.top = y + 'px';
-    envelopePos.style.transform = `translate(-50%,-50%) rotate(${(Math.random()*16-8).toFixed(1)}deg)`;
+
+    const flightTransition = 'left 0.65s cubic-bezier(.34,1.56,.64,1), top 0.65s cubic-bezier(.34,1.56,.64,1), transform 0.65s cubic-bezier(.34,1.56,.64,1)';
+    const wiggleDir = Math.random() < 0.5 ? -1 : 1;
+
+    // a quick flinch-and-squash before it darts off, for a playful "startled" feel
+    envelopePos.style.transition = 'transform 0.14s ease-out';
+    envelopePos.style.transform = `translate(-50%,-50%) scale(1.14,0.82) rotate(${wiggleDir*11}deg)`;
+
+    setTimeout(()=>{
+      envelopePos.style.transition = flightTransition;
+      envelopePos.style.left = x + 'px';
+      envelopePos.style.top = y + 'px';
+      envelopePos.style.transform = `translate(-50%,-50%) rotate(${(Math.random()*20-10).toFixed(1)}deg)`;
+    }, 130);
   }
 
   function moveToRest(){
