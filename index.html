@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>catch the letter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap');
+
+  :root{
+    --dusk-a:#241220;
+    --dusk-b:#4a2439;
+    --dusk-c:#8c4a5b;
+    --amber:#e8a87c;
+    --parchment:#f4e8d8;
+    --parchment-shadow:#c9a876;
+    --wax:#8c2f3d;
+    --ink:#3a2620;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 8%, rgba(232,168,124,0.35), transparent 60%),
+      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(76,29,53,0.6), transparent 70%),
+      linear-gradient(160deg, var(--dusk-a) 0%, var(--dusk-b) 55%, var(--dusk-c) 100%);
+    font-family:'Jost', sans-serif;
+    touch-action: manipulation;
+  }
+
+  .grain{
+    position:fixed; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .scene{ position:fixed; inset:0; }
+
+  .ember{
+    position:absolute; border-radius:50%;
+    background: radial-gradient(circle, rgba(232,168,124,0.9), rgba(232,168,124,0));
+    pointer-events:none;
+    animation: drift 14s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{ transform:translateY(0) scale(1); opacity:0.5;}
+    50%{ transform:translateY(-40px) scale(1.3); opacity:0.9;}
+  }
+
+  .hint{
+    position:fixed; top:9%; left:50%; transform:translateX(-50%);
+    color:var(--parchment); font-family:'Cormorant Garamond', serif;
+    font-size:22px; font-style:italic; letter-spacing:0.02em;
+    text-align:center; width:min(86vw,420px);
+    opacity:0.88; transition:opacity 0.5s ease;
+    text-shadow:0 2px 12px rgba(0,0,0,0.4);
+    pointer-events:none;
+    z-index:6;
+  }
+
+  .envelope-pos{
+    position:fixed;
+    width:168px; height:112px;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    transition: left 0.65s cubic-bezier(.34,1.56,.64,1), top 0.65s cubic-bezier(.34,1.56,.64,1), transform 0.65s cubic-bezier(.34,1.56,.64,1);
+    cursor:pointer;
+    z-index:5;
+    perspective: 1000px;
+  }
+  .envelope-pos.opened{
+    transition: left 0.9s cubic-bezier(.2,.8,.2,1), top 0.9s cubic-bezier(.2,.8,.2,1), transform 0.9s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .envelope-bob{
+    width:100%; height:100%;
+    animation: bob 4.5s ease-in-out infinite;
+    transform-style:preserve-3d;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translateY(0) rotate(-1.5deg); }
+    50%{ transform:translateY(-10px) rotate(1.5deg); }
+  }
+  .envelope-pos.opened .envelope-bob{ animation:none; transform:none; }
+
+  .envelope-body{
+    position:absolute; left:0; bottom:0; width:100%; height:74%;
+    background:linear-gradient(160deg, var(--parchment) 0%, #e6d3ba 100%);
+    border-radius:4px;
+    box-shadow: 0 18px 40px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset;
+  }
+  .envelope-body::before{
+    content:''; position:absolute; inset:0;
+    background:
+      linear-gradient(115deg, transparent 46%, rgba(140,74,91,0.18) 47%, transparent 49%),
+      linear-gradient(65deg, transparent 46%, rgba(140,74,91,0.18) 47%, transparent 49%);
+  }
+
+  .envelope-flap{
+    position:absolute; top:0; left:0; width:100%; height:64%;
+    background:linear-gradient(160deg,#efe0c8 0%, var(--parchment-shadow) 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 92%);
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    transition: transform 0.85s cubic-bezier(.6,.05,.25,1), box-shadow 0.85s ease;
+    z-index:2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    backface-visibility: hidden;
+  }
+
+  .seal{
+    position:absolute; top:44%; left:50%; transform:translate(-50%,-50%) scale(1) rotate(0deg);
+    width:34px; height:34px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #a8455a, var(--wax) 70%);
+    box-shadow:0 3px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
+    z-index:3;
+    display:flex; align-items:center; justify-content:center;
+    color:#f4e8d8; font-size:15px;
+    transition: transform 0.5s cubic-bezier(.5,-0.3,.5,1.3), opacity 0.5s ease;
+  }
+
+  .envelope-pos.flap-open .envelope-flap{
+    transform: rotateX(-172deg);
+    box-shadow:none;
+  }
+  .envelope-pos.flap-open .seal{
+    transform:translate(-50%,-50%) scale(0) rotate(-40deg);
+    opacity:0;
+  }
+
+  /* letter: anchor defines the final resting box, panel gets the FLIP transform */
+  .letter-anchor{
+    position:fixed; left:50%; bottom:6vh; transform:translateX(-50%);
+    width:min(92vw, 620px); height:min(72vh, 700px);
+    z-index:4; perspective: 1400px;
+    pointer-events:none;
+  }
+  .letter-panel{
+    width:100%; height:100%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02)), var(--parchment);
+    border-radius:6px 6px 2px 2px;
+    box-shadow: 0 -10px 60px rgba(0,0,0,0.5), 0 30px 60px rgba(0,0,0,0.4);
+    padding:56px 40px 32px;
+    opacity:0;
+    transform-origin: center center;
+    will-change: transform, opacity;
+  }
+  .letter-panel::before{
+    content:''; position:absolute; inset:0; border-radius:inherit;
+    background-image: repeating-linear-gradient(rgba(140,74,91,0.06) 0 1px, transparent 1px 38px);
+    pointer-events:none;
+  }
+
+  .letter-heading{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    color:var(--ink); font-size:17px; opacity:0.55;
+    margin:0 0 14px 2px;
+    transition: opacity 0.6s ease 0.35s;
+  }
+  .letter-heading.dim{ opacity:0; transition: opacity 0.15s ease; }
+
+  textarea{
+    position:relative; z-index:1;
+    width:100%; height:calc(100% - 34px - 62px);
+    resize:none; border:none; outline:none; background:transparent;
+    font-family:'Cormorant Garamond', serif;
+    font-size:24px; line-height:38px; color:var(--ink);
+    caret-color:var(--wax);
+    opacity:1;
+    transition: opacity 0.6s ease 0.35s;
+  }
+  textarea.dim{ opacity:0; transition: opacity 0.15s ease; }
+  textarea::placeholder{ color:rgba(58,38,32,0.35); font-style:italic; }
+
+  .close-tab{
+    position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    width:64px; height:22px; border-radius:20px;
+    background:rgba(244,232,216,0.9);
+    box-shadow:0 4px 14px rgba(0,0,0,0.35);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:12px;
+    color:var(--ink); opacity:0.7; letter-spacing:0.02em;
+    pointer-events:auto; cursor:pointer;
+  }
+
+  .share-row{
+    position:absolute; bottom:14px; right:40px; left:40px;
+    display:flex; justify-content:space-between; align-items:center;
+    gap:10px; z-index:2;
+  }
+  .share-btn{
+    font-family:'Jost', sans-serif; font-size:12.5px; letter-spacing:0.03em;
+    color:var(--parchment); background:var(--wax);
+    border:none; border-radius:20px; padding:9px 18px;
+    cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    transition: background 0.3s ease, transform 0.2s ease;
+    pointer-events:auto; white-space:nowrap;
+  }
+  .share-btn:hover{ background:#742736; }
+  .share-btn:active{ transform:scale(0.97); }
+  .share-btn.copied{ background:#5c8c5f; }
+
+  .photo-add-btn{
+    font-family:'Jost', sans-serif; font-size:12.5px; letter-spacing:0.02em;
+    color:var(--ink); background:transparent;
+    border:1px solid rgba(58,38,32,0.3); border-radius:20px; padding:8px 16px;
+    cursor:pointer; opacity:0.75; pointer-events:auto;
+    transition: opacity 0.25s ease, border-color 0.25s ease;
+    white-space:nowrap;
+  }
+  .photo-add-btn:hover{ opacity:1; border-color:rgba(58,38,32,0.55); }
+  .photo-add-btn:disabled{ opacity:0.3; cursor:default; }
+
+  .photo-thumbs{
+    position:absolute; bottom:56px; left:40px; right:40px;
+    display:flex; gap:8px; z-index:2; pointer-events:auto;
+  }
+  .photo-thumb{
+    position:relative; width:44px; height:44px; border-radius:5px; overflow:hidden;
+    box-shadow:0 3px 8px rgba(0,0,0,0.3); flex-shrink:0;
+  }
+  .photo-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photo-thumb .remove{
+    position:absolute; top:0; right:0; width:16px; height:16px;
+    background:rgba(36,18,32,0.75); color:var(--parchment);
+    font-size:11px; line-height:16px; text-align:center; cursor:pointer;
+    border-bottom-left-radius:5px;
+  }
+
+  textarea.with-thumbs{ height:calc(100% - 34px - 106px); }
+  textarea.full-height{ height:calc(100% - 34px); }
+
+  .scatter-photo{
+    position:fixed; z-index:3; background:#fdfaf4; padding:6px 6px 20px;
+    border-radius:3px; box-shadow:0 14px 30px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.25);
+    pointer-events:none;
+  }
+  .scatter-photo img{
+    display:block; width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:1px;
+  }
+
+  textarea[readonly]{ cursor:default; }
+  textarea[readonly]::placeholder{ opacity:0; }
+
+  @media (prefers-reduced-motion: reduce){
+    .envelope-bob, .ember{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="scene" id="scene">
+  <div class="hint" id="hint">catch the letter, if you can</div>
+
+  <div class="envelope-pos" id="envelopePos">
+    <div class="envelope-bob" id="envelopeBob">
+      <div class="envelope-flap"></div>
+      <div class="seal">&hearts;</div>
+      <div class="envelope-body"></div>
+    </div>
+  </div>
+
+  <div class="scatter-layer" id="scatterLayer"></div>
+
+  <div class="letter-anchor" id="letterAnchor">
+    <div class="letter-panel" id="letterPanel">
+      <div class="close-tab" id="closeTab">fold it back</div>
+      <p class="letter-heading" id="letterHeading">for you &mdash;</p>
+      <textarea id="letterText" class="with-tools" placeholder="begin however you like..."></textarea>
+      <div class="photo-thumbs" id="photoThumbs"></div>
+      <div class="share-row" id="shareRow">
+        <input type="file" id="photoInput" accept="image/*" multiple hidden>
+        <button class="photo-add-btn" id="addPhotosBtn" type="button">+ add photos</button>
+        <button class="share-btn" id="shareBtn" type="button">copy link for them</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const scene = document.getElementById('scene');
+  const envelopePos = document.getElementById('envelopePos');
+  const hint = document.getElementById('hint');
+  const letterAnchor = document.getElementById('letterAnchor');
+  const letterPanel = document.getElementById('letterPanel');
+  const letterHeading = document.getElementById('letterHeading');
+  const letterText = document.getElementById('letterText');
+  const closeTab = document.getElementById('closeTab');
+  const shareRow = document.getElementById('shareRow');
+  const shareBtn = document.getElementById('shareBtn');
+  const addPhotosBtn = document.getElementById('addPhotosBtn');
+  const photoInput = document.getElementById('photoInput');
+  const photoThumbs = document.getElementById('photoThumbs');
+  const scatterLayer = document.getElementById('scatterLayer');
+
+  const MAX_PHOTOS = 4;
+  const photosDataURLs = []; // sender's chosen photos, mutated in place
+
+  // --- shareable-link mode -------------------------------------------
+  // The message (and now photos) live in the URL itself (base64 JSON in
+  // ?msg=), so a static host can still show a finished letter to whoever
+  // opens the link — no backend required.
+  function b64encode(str){ return btoa(unescape(encodeURIComponent(str))); }
+  function b64decode(str){ return decodeURIComponent(escape(atob(str))); }
+
+  function compressImage(file, maxDim, quality){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onload = ()=>{
+          let w = img.width, h = img.height;
+          if(w > h){ if(w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; } }
+          else { if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; } }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderThumbs(){
+    photoThumbs.innerHTML = '';
+    photosDataURLs.forEach((src, i)=>{
+      const t = document.createElement('div');
+      t.className = 'photo-thumb';
+      t.innerHTML = `<img src="${src}" alt=""><div class="remove">&times;</div>`;
+      t.querySelector('.remove').addEventListener('click', ()=>{
+        photosDataURLs.splice(i, 1);
+        renderThumbs();
+      });
+      photoThumbs.appendChild(t);
+    });
+    letterText.classList.toggle('with-thumbs', photosDataURLs.length > 0);
+    letterText.classList.toggle('with-tools', photosDataURLs.length === 0);
+    addPhotosBtn.disabled = photosDataURLs.length >= MAX_PHOTOS;
+    addPhotosBtn.textContent = photosDataURLs.length >= MAX_PHOTOS ? 'photos added' : '+ add photos';
+  }
+
+  addPhotosBtn.addEventListener('click', ()=> photoInput.click());
+  photoInput.addEventListener('change', async ()=>{
+    const files = Array.from(photoInput.files).slice(0, MAX_PHOTOS - photosDataURLs.length);
+    for(const file of files){
+      try{
+        const dataUrl = await compressImage(file, 420, 0.6);
+        photosDataURLs.push(dataUrl);
+      }catch(e){ /* skip file that fails to load */ }
+    }
+    renderThumbs();
+    photoInput.value = '';
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const incomingId = params.get('id');
+  const incomingMsg = params.get('msg'); // legacy fallback for links made before short-link support
+  const isRecipientView = !!incomingId || !!incomingMsg;
+  let currentPhotos = photosDataURLs;
+  let incomingReady = null;
+
+  if(isRecipientView){
+    letterText.readOnly = true;
+    letterText.classList.remove('with-tools', 'with-thumbs');
+    letterText.classList.add('full-height');
+    letterText.placeholder = 'opening your letter...';
+    shareRow.style.display = 'none';
+    photoThumbs.style.display = 'none';
+
+    incomingReady = (async ()=>{
+      let payload = { t: '', p: [] };
+      try{
+        if(incomingId){
+          const res = await fetch('/api/letter?id=' + encodeURIComponent(incomingId), {
+            headers: { 'Accept': 'application/json' }
+          });
+          if(!res.ok) throw new Error('not found');
+          payload = await res.json();
+        } else if(incomingMsg){
+          const decoded = b64decode(incomingMsg);
+          try{ payload = JSON.parse(decoded); }
+          catch(e){ payload = { t: decoded, p: [] }; }
+        }
+      }catch(e){
+        payload = { t: "this letter couldn't be opened right now — the link may be broken, or you might be offline. try reloading, or ask them to resend it.", p: [] };
+      }
+      letterText.value = payload.t || '';
+      currentPhotos = Array.isArray(payload.p) ? payload.p : [];
+    })();
+  } else {
+    renderThumbs();
+  }
+
+  function copyToClipboard(text){
+    return new Promise((resolve)=>{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(resolve).catch(()=>{
+          window.prompt('Copy this link:', text);
+          resolve();
+        });
+      } else {
+        window.prompt('Copy this link:', text);
+        resolve();
+      }
+    });
+  }
+
+  shareBtn.addEventListener('click', async ()=>{
+    const text = letterText.value.trim();
+    if(!text && photosDataURLs.length === 0) return;
+    const original = shareBtn.textContent;
+    shareBtn.disabled = true;
+    shareBtn.textContent = 'sealing the letter\u2026';
+    const payload = { t: text, p: photosDataURLs };
+
+    try{
+      const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!res.ok || !data.id) throw new Error(data.error || 'could not seal letter');
+      const url = window.location.origin + window.location.pathname + '?id=' + data.id;
+      await copyToClipboard(url);
+      shareBtn.textContent = 'link copied \u2713';
+      shareBtn.classList.add('copied');
+    }catch(e){
+      shareBtn.textContent = "couldn't reach the mailbox \u2014 try again";
+    }finally{
+      setTimeout(()=>{
+        shareBtn.textContent = original;
+        shareBtn.classList.remove('copied');
+        shareBtn.disabled = false;
+      }, 2600);
+    }
+  });
+
+  // where each photo lands, as a fraction of the letter panel's own box —
+  // negative/over-1 values let them peek out past its edges
+  const scatterSpots = [
+    { xPct:-0.10, yPct:-0.07, rot:-9 },
+    { xPct: 1.02, yPct:-0.03, rot:7 },
+    { xPct:-0.12, yPct: 0.80, rot:6 },
+    { xPct: 1.00, yPct: 0.84, rot:-7 }
+  ];
+
+  function spawnPhotos(){
+    if(!currentPhotos || currentPhotos.length === 0) return;
+    scatterLayer.innerHTML = '';
+    const finalRect = letterAnchor.getBoundingClientRect();
+    const envRect = envelopePos.getBoundingClientRect();
+    const photoW = Math.min(120, window.innerWidth * 0.3);
+
+    currentPhotos.slice(0, MAX_PHOTOS).forEach((src, i)=>{
+      const spot = scatterSpots[i % scatterSpots.length];
+      const targetX = finalRect.left + finalRect.width * spot.xPct - photoW / 2;
+      const targetY = finalRect.top + finalRect.height * spot.yPct - photoW / 2;
+      const startX = envRect.left + envRect.width / 2 - photoW / 2;
+      const startY = envRect.top + envRect.height / 2 - photoW / 2;
+
+      const div = document.createElement('div');
+      div.className = 'scatter-photo';
+      div.style.width = photoW + 'px';
+      div.style.left = startX + 'px';
+      div.style.top = startY + 'px';
+      div.style.transform = 'scale(0.2) rotate(0deg)';
+      div.style.opacity = '0';
+      div.innerHTML = `<img src="${src}" alt="">`;
+      scatterLayer.appendChild(div);
+
+      setTimeout(()=>{
+        div.style.transition = 'left 0.9s cubic-bezier(.16,.9,.2,1), top 0.9s cubic-bezier(.16,.9,.2,1), transform 0.9s cubic-bezier(.16,.9,.2,1), opacity 0.55s ease';
+        div.style.left = targetX + 'px';
+        div.style.top = targetY + 'px';
+        div.style.transform = `scale(1) rotate(${spot.rot}deg)`;
+        div.style.opacity = '1';
+      }, 180 + i * 130);
+    });
+  }
+
+  function retractPhotos(){
+    const nodes = scatterLayer.querySelectorAll('.scatter-photo');
+    if(nodes.length === 0) return;
+    const envRect = envelopePos.getBoundingClientRect();
+    nodes.forEach((div, i)=>{
+      const photoW = parseFloat(div.style.width);
+      const targetX = envRect.left + envRect.width / 2 - photoW / 2;
+      const targetY = envRect.top + envRect.height / 2 - photoW / 2;
+      div.style.transition = 'left 0.55s ease, top 0.55s ease, transform 0.55s ease, opacity 0.45s ease';
+      div.style.left = targetX + 'px';
+      div.style.top = targetY + 'px';
+      div.style.transform = 'scale(0.2) rotate(0deg)';
+      div.style.opacity = '0';
+    });
+    setTimeout(()=>{ scatterLayer.innerHTML = ''; }, 600);
+  }
+
+  const dodgeMessages = [
+    "catch the letter, if you can",
+    "not quite &mdash; try again",
+    "it's slipping away",
+    "so close, keep going",
+    "one more chance",
+    "alright &mdash; you've earned it. touch it once more"
+  ];
+
+  let dodges = 0;
+  const maxDodges = 5;
+  let unlocked = false;
+  let letterOpen = false;
+  let animating = false;
+  let lastCorner = -1;
+
+  for(let i=0;i<10;i++){
+    const e = document.createElement('div');
+    e.className='ember';
+    const size = 3 + Math.random()*5;
+    e.style.width = size+'px';
+    e.style.height = size+'px';
+    e.style.left = Math.random()*100+'vw';
+    e.style.top = Math.random()*100+'vh';
+    e.style.animationDelay = (Math.random()*10)+'s';
+    e.style.animationDuration = (10+Math.random()*8)+'s';
+    scene.appendChild(e);
+  }
+
+  function safeBounds(){
+    const w = envelopePos.offsetWidth || 168;
+    const h = envelopePos.offsetHeight || 112;
+    const margin = 24;
+    return {
+      minX: margin + w/2,
+      maxX: window.innerWidth - margin - w/2,
+      minY: margin + h/2 + 70,
+      maxY: window.innerHeight - margin - h/2
+    };
+  }
+
+  function moveToDodgePosition(){
+    const b = safeBounds();
+    const corners = [
+      {x:b.minX, y:b.minY}, {x:b.maxX, y:b.minY},
+      {x:b.minX, y:b.maxY}, {x:b.maxX, y:b.maxY},
+      {x:(b.minX+b.maxX)/2, y:b.minY}, {x:(b.minX+b.maxX)/2, y:b.maxY}
+    ];
+    let idx;
+    do { idx = Math.floor(Math.random()*corners.length); } while(idx === lastCorner && corners.length>1);
+    lastCorner = idx;
+    const jitterX = (Math.random()-0.5)*40;
+    const jitterY = (Math.random()-0.5)*40;
+    const x = Math.min(b.maxX, Math.max(b.minX, corners[idx].x + jitterX));
+    const y = Math.min(b.maxY, Math.max(b.minY, corners[idx].y + jitterY));
+    envelopePos.style.left = x + 'px';
+    envelopePos.style.top = y + 'px';
+    envelopePos.style.transform = `translate(-50%,-50%) rotate(${(Math.random()*16-8).toFixed(1)}deg)`;
+  }
+
+  function moveToRest(){
+    envelopePos.classList.add('opened');
+    envelopePos.style.left = '50%';
+    envelopePos.style.top = '17%';
+    envelopePos.style.transform = 'translate(-50%,-50%)';
+  }
+
+  // FLIP: animate letterPanel from the envelope's current box to its natural resting box (or reverse)
+  function flipLetter(growing){
+    const envRect = envelopePos.getBoundingClientRect();
+    const finalRect = letterAnchor.getBoundingClientRect();
+
+    const scaleX = envRect.width / finalRect.width;
+    const scaleY = envRect.height / finalRect.height;
+    const dx = (envRect.left + envRect.width/2) - (finalRect.left + finalRect.width/2);
+    const dy = (envRect.top + envRect.height/2) - (finalRect.top + finalRect.height/2);
+
+    if(growing){
+      letterAnchor.style.pointerEvents = 'none';
+      letterPanel.style.transition = 'none';
+      letterPanel.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY}) rotateX(18deg)`;
+      letterPanel.style.opacity = '0';
+      letterHeading.classList.add('dim');
+      letterText.classList.add('dim');
+      // force reflow
+      letterPanel.getBoundingClientRect();
+      requestAnimationFrame(()=>{
+        letterPanel.style.transition = 'transform 0.95s cubic-bezier(.16,.9,.2,1), opacity 0.5s ease';
+        letterPanel.style.transform = 'translate(0,0) scale(1,1) rotateX(0deg)';
+        letterPanel.style.opacity = '1';
+      });
+      setTimeout(()=>{
+        letterAnchor.style.pointerEvents = 'auto';
+        letterHeading.classList.remove('dim');
+        letterText.classList.remove('dim');
+      }, 550);
+    } else {
+      letterAnchor.style.pointerEvents = 'none';
+      letterHeading.classList.add('dim');
+      letterText.classList.add('dim');
+      letterPanel.style.transition = 'transform 0.75s cubic-bezier(.5,0,.4,1), opacity 0.6s ease';
+      letterPanel.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY}) rotateX(14deg)`;
+      letterPanel.style.opacity = '0';
+    }
+  }
+
+  async function openFlapAndLetter(){
+    animating = true;
+    envelopePos.classList.add('flap-open');
+    if(incomingReady){ try{ await incomingReady; }catch(e){} }
+    setTimeout(()=>{
+      flipLetter(true);
+      spawnPhotos();
+      letterOpen = true;
+      setTimeout(()=>{ animating = false; }, 950);
+    }, 260);
+  }
+
+  function closeFlapAndLetter(){
+    animating = true;
+    flipLetter(false);
+    retractPhotos();
+    setTimeout(()=>{
+      envelopePos.classList.remove('flap-open');
+      letterOpen = false;
+      hint.textContent = 'touch it to open again';
+      hint.style.opacity = '0.7';
+      setTimeout(()=>{ animating = false; }, 850);
+    }, 500);
+  }
+
+  function firstOpen(){
+    animating = true;
+    hint.style.opacity = '0';
+    moveToRest();
+    setTimeout(()=>{
+      unlocked = true;
+      openFlapAndLetter();
+    }, 600);
+  }
+
+  function handleEnvelopeTouch(ev){
+    ev.preventDefault();
+    if(animating) return;
+    if(letterOpen){
+      closeFlapAndLetter();
+      return;
+    }
+    if(unlocked){
+      openFlapAndLetter();
+      hint.style.opacity = '0';
+      return;
+    }
+    if(dodges < maxDodges){
+      moveToDodgePosition();
+      dodges++;
+      hint.style.opacity = '0';
+      setTimeout(()=>{
+        hint.innerHTML = dodgeMessages[dodges];
+        hint.style.opacity = '0.88';
+      }, 220);
+    } else {
+      firstOpen();
+    }
+  }
+
+  function handleCloseTab(ev){
+    ev.stopPropagation();
+    ev.preventDefault();
+    if(animating || !letterOpen) return;
+    closeFlapAndLetter();
+  }
+
+  envelopePos.addEventListener('click', handleEnvelopeTouch);
+  envelopePos.addEventListener('touchstart', handleEnvelopeTouch, {passive:false});
+  closeTab.addEventListener('click', handleCloseTab);
+  closeTab.addEventListener('touchstart', handleCloseTab, {passive:false});
+
+  window.addEventListener('resize', ()=>{
+    if(unlocked) return;
+    const b = safeBounds();
+    const curX = parseFloat(envelopePos.style.left) || window.innerWidth/2;
+    const curY = parseFloat(envelopePos.style.top) || window.innerHeight/2;
+    envelopePos.style.left = Math.min(b.maxX, Math.max(b.minX, curX)) + 'px';
+    envelopePos.style.top = Math.min(b.maxY, Math.max(b.minY, curY)) + 'px';
+  });
+</script>
+</body>
+</html>
