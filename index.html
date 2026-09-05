@@ -15,7 +15,7 @@
     --parchment:#f4e8d8;
     --parchment-shadow:#c9a876;
     --wax:#8c2f3d;
-    --ink:#3a2620;
+    --ink:#3d2a52;
   }
 
   *{box-sizing:border-box;}
@@ -56,6 +56,29 @@
   @keyframes doodle-drift{
     0%,100%{ transform:translate(0,0) rotate(var(--r0,0deg)); }
     50%{ transform:translate(var(--dx,10px), var(--dy,-14px)) rotate(var(--r1,8deg)); }
+  }
+
+  .petal{
+    position:fixed; top:-6vh; pointer-events:none; z-index:1;
+    animation: petal-fall linear infinite;
+  }
+  .petal.leaf{
+    width:var(--w,10px); height:var(--h,14px);
+    background:linear-gradient(135deg, rgba(240,217,245,0.9), rgba(139,122,184,0.55));
+    border-radius:0 100% 0 100%;
+    opacity:0.55;
+  }
+  .petal.heart{
+    color:rgba(240,217,245,0.75);
+    font-size:var(--fs,14px);
+    opacity:0.55;
+  }
+  @keyframes petal-fall{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg); }
+    25%{ transform:translateY(28vh) translateX(calc(var(--sway,24px) * -1)) rotate(90deg); }
+    50%{ transform:translateY(56vh) translateX(var(--sway,24px)) rotate(180deg); }
+    75%{ transform:translateY(84vh) translateX(calc(var(--sway,24px) * -0.6)) rotate(260deg); }
+    100%{ transform:translateY(116vh) translateX(0) rotate(340deg); }
   }
 
   .hint{
@@ -127,6 +150,38 @@
     backface-visibility: hidden;
   }
 
+  .envelope-stamp{
+    position:absolute; top:8px; right:11px; width:20px; height:24px;
+    background:linear-gradient(160deg, var(--parchment), #e6d3ba);
+    border-radius:2px;
+    transform:rotate(5deg);
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    backface-visibility:hidden;
+  }
+  .envelope-stamp::before{
+    content:''; position:absolute; inset:-3px; z-index:-1;
+    background-image: radial-gradient(circle, rgba(244,232,216,0.95) 1.3px, transparent 1.5px);
+    background-size:5px 5px;
+  }
+  .envelope-stamp::after{
+    content:'\2665'; position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; color:var(--wax); opacity:0.7;
+  }
+
+  .envelope-ribbon{
+    position:absolute; left:0; right:0; top:79%; height:8px;
+    background:linear-gradient(180deg, #f0d9f5, var(--dusk-c));
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    z-index:1;
+  }
+  .envelope-ribbon::before{
+    content:''; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:17px; height:17px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #f6e6fa, var(--dusk-c) 78%);
+    box-shadow:0 2px 5px rgba(0,0,0,0.35);
+  }
+
   .seal{
     position:absolute; top:44%; left:50%; transform:translate(-50%,-50%) scale(1) rotate(0deg);
     width:34px; height:34px; border-radius:50%;
@@ -156,9 +211,9 @@
   }
   .letter-panel{
     width:100%; height:100%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02)), var(--parchment);
-    border-radius:6px 6px 2px 2px;
-    box-shadow: 0 -10px 60px rgba(0,0,0,0.5), 0 30px 60px rgba(0,0,0,0.4);
+    background: linear-gradient(165deg, #f7edfb 0%, #e6d5f2 55%, #d9c4ec 100%);
+    border-radius:26px;
+    box-shadow: 0 -10px 50px rgba(69,55,102,0.35), 0 30px 60px rgba(35,25,52,0.45);
     padding:56px 40px 32px;
     opacity:0;
     transform-origin: center center;
@@ -166,7 +221,7 @@
   }
   .letter-panel::before{
     content:''; position:absolute; inset:0; border-radius:inherit;
-    background-image: repeating-linear-gradient(rgba(140,74,91,0.06) 0 1px, transparent 1px 38px);
+    background-image: repeating-linear-gradient(rgba(139,122,184,0.12) 0 1px, transparent 1px 38px);
     pointer-events:none;
   }
 
@@ -185,10 +240,11 @@
     transition: stroke-dashoffset 1s ease 0.5s;
   }
   .letter-heading.dim svg path{ stroke-dashoffset:140; transition: stroke-dashoffset 0.15s ease; }
+  .heading-heart{ display:inline-block; transform:rotate(-16deg); font-size:14px; }
 
   textarea{
     position:relative; z-index:1;
-    width:100%; height:calc(100% - 34px - 62px);
+    width:100%; height:calc(100% - 34px - 62px - 30px);
     resize:none; border:none; outline:none; background:transparent;
     font-family:'Cormorant Garamond', serif;
     font-size:24px; line-height:38px; color:var(--ink);
@@ -197,13 +253,26 @@
     transition: opacity 0.6s ease 0.35s;
   }
   textarea.dim{ opacity:0; transition: opacity 0.15s ease; }
-  textarea::placeholder{ color:rgba(58,38,32,0.35); font-style:italic; }
+  textarea::placeholder{ color:rgba(61,42,82,0.4); font-style:italic; }
+
+  .letter-seal{
+    position:absolute; top:16px; right:22px; width:32px; height:32px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #a8455a, var(--wax) 75%);
+    box-shadow:0 3px 8px rgba(0,0,0,0.35), inset 0 -2px 4px rgba(0,0,0,0.25);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--parchment); font-size:14px;
+    transform:rotate(-12deg) scale(0);
+    opacity:0;
+    transition: transform 0.6s cubic-bezier(.34,1.6,.64,1) 0.5s, opacity 0.45s ease 0.5s;
+    z-index:2; pointer-events:none;
+  }
+  .letter-seal.show{ transform:rotate(-12deg) scale(1); opacity:0.92; }
 
   .close-tab{
     position:absolute; top:-16px; left:50%; transform:translateX(-50%);
     width:64px; height:22px; border-radius:20px;
-    background:rgba(244,232,216,0.9);
-    box-shadow:0 4px 14px rgba(0,0,0,0.35);
+    background:rgba(247,237,251,0.95);
+    box-shadow:0 4px 14px rgba(35,25,52,0.4);
     display:flex; align-items:center; justify-content:center;
     font-family:'Cormorant Garamond', serif; font-style:italic; font-size:12px;
     color:var(--ink); opacity:0.7; letter-spacing:0.02em;
@@ -230,12 +299,12 @@
   .photo-add-btn{
     font-family:'Jost', sans-serif; font-size:12.5px; letter-spacing:0.02em;
     color:var(--ink); background:transparent;
-    border:1px solid rgba(58,38,32,0.3); border-radius:20px; padding:8px 16px;
+    border:1px solid rgba(61,42,82,0.35); border-radius:20px; padding:8px 16px;
     cursor:pointer; opacity:0.75; pointer-events:auto;
     transition: opacity 0.25s ease, border-color 0.25s ease;
     white-space:nowrap;
   }
-  .photo-add-btn:hover{ opacity:1; border-color:rgba(58,38,32,0.55); }
+  .photo-add-btn:hover{ opacity:1; border-color:rgba(61,42,82,0.6); }
   .photo-add-btn:disabled{ opacity:0.3; cursor:default; }
 
   .photo-thumbs{
@@ -254,8 +323,17 @@
     border-bottom-left-radius:5px;
   }
 
-  textarea.with-thumbs{ height:calc(100% - 34px - 106px); }
-  textarea.full-height{ height:calc(100% - 34px); }
+  textarea.with-thumbs{ height:calc(100% - 34px - 106px - 30px); }
+  textarea.full-height{ height:calc(100% - 34px - 30px); }
+
+  .letter-signature{
+    text-align:right; margin:6px 0 0;
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:21px;
+    color:var(--wax); opacity:0; transform:rotate(-3deg) translateY(6px);
+    transition: opacity 0.6s ease 0.6s, transform 0.6s ease 0.6s;
+    pointer-events:none;
+  }
+  .letter-signature.show{ opacity:0.85; transform:rotate(-3deg) translateY(0); }
 
   .scatter-photo{
     position:fixed; z-index:3; background:#fdfaf4; padding:6px 6px 20px;
@@ -291,7 +369,7 @@
   textarea[readonly]::placeholder{ opacity:0; }
 
   @media (prefers-reduced-motion: reduce){
-    .envelope-bob, .ember, .doodle, .hint, .scatter-photo-inner{ animation:none !important; }
+    .envelope-bob, .ember, .doodle, .hint, .scatter-photo-inner, .petal{ animation:none !important; }
   }
 </style>
 </head>
@@ -303,9 +381,12 @@
 
   <div class="envelope-pos" id="envelopePos">
     <div class="envelope-bob" id="envelopeBob">
-      <div class="envelope-flap"></div>
+      <div class="envelope-flap">
+        <div class="envelope-stamp"></div>
+      </div>
       <div class="seal">&hearts;</div>
       <div class="envelope-body"></div>
+      <div class="envelope-ribbon"></div>
     </div>
   </div>
 
@@ -314,12 +395,14 @@
   <div class="letter-anchor" id="letterAnchor">
     <div class="letter-panel" id="letterPanel">
       <div class="close-tab" id="closeTab">fold it back</div>
-      <p class="letter-heading" id="letterHeading">for you &mdash;
+      <div class="letter-seal" id="letterSeal">&hearts;</div>
+      <p class="letter-heading" id="letterHeading">for you &mdash; <span class="heading-heart">&#129505;</span>
         <svg viewBox="0 0 78 10" xmlns="http://www.w3.org/2000/svg">
           <path d="M2,6 Q10,1 18,6 T34,6 T50,6 T66,6 T76,5" />
         </svg>
       </p>
       <textarea id="letterText" class="with-tools" placeholder="begin however you like..."></textarea>
+      <p class="letter-signature" id="letterSignature">Shubh~</p>
       <div class="photo-thumbs" id="photoThumbs"></div>
       <div class="share-row" id="shareRow">
         <input type="file" id="photoInput" accept="image/*" multiple hidden>
@@ -337,6 +420,8 @@
   const letterAnchor = document.getElementById('letterAnchor');
   const letterPanel = document.getElementById('letterPanel');
   const letterHeading = document.getElementById('letterHeading');
+  const letterSeal = document.getElementById('letterSeal');
+  const letterSignature = document.getElementById('letterSignature');
   const letterText = document.getElementById('letterText');
   const closeTab = document.getElementById('closeTab');
   const shareRow = document.getElementById('shareRow');
@@ -613,6 +698,25 @@
     scene.appendChild(d);
   }
 
+  // gently falling petals and hearts drifting down the whole scene
+  for(let i=0;i<15;i++){
+    const p = document.createElement('div');
+    const isHeart = Math.random() < 0.3;
+    p.className = 'petal ' + (isHeart ? 'heart' : 'leaf');
+    if(isHeart){
+      p.innerHTML = '&hearts;';
+      p.style.setProperty('--fs', (10+Math.random()*8)+'px');
+    } else {
+      p.style.setProperty('--w', (7+Math.random()*6)+'px');
+      p.style.setProperty('--h', (10+Math.random()*8)+'px');
+    }
+    p.style.left = Math.random()*100+'vw';
+    p.style.setProperty('--sway', (14+Math.random()*26)+'px');
+    p.style.animationDuration = (13+Math.random()*10)+'s';
+    p.style.animationDelay = (Math.random()*-22)+'s';
+    scene.appendChild(p);
+  }
+
   function safeBounds(){
     const w = envelopePos.offsetWidth || 168;
     const h = envelopePos.offsetHeight || 112;
@@ -690,11 +794,15 @@
         letterAnchor.style.pointerEvents = 'auto';
         letterHeading.classList.remove('dim');
         letterText.classList.remove('dim');
+        letterSeal.classList.add('show');
+        letterSignature.classList.add('show');
       }, 550);
     } else {
       letterAnchor.style.pointerEvents = 'none';
       letterHeading.classList.add('dim');
       letterText.classList.add('dim');
+      letterSeal.classList.remove('show');
+      letterSignature.classList.remove('show');
       letterPanel.style.transition = 'transform 0.75s cubic-bezier(.5,0,.4,1), opacity 0.6s ease';
       letterPanel.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY}) rotateX(14deg)`;
       letterPanel.style.opacity = '0';
