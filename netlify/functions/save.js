@@ -1,42 +1,23 @@
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+import { getStore } from "@netlify/blobs";
+
+export default async (req) => {
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
   try {
-    const payload = JSON.parse(event.body || '{}');
+    const payload = await req.json();
+    const store = getStore("letters");
+    const id = crypto.randomUUID();
+    await store.set(id, JSON.stringify(payload));
 
-    const upstream = await fetch('https://jsonblob.com/api/jsonBlob', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload)
+    return new Response(JSON.stringify({ id }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
     });
-
-    const location = upstream.headers.get('location') || upstream.headers.get('Location') || upstream.url || '';
-    const id = location.split('/').filter(Boolean).pop();
-
-    if (!upstream.ok || !id) {
-      return {
-        statusCode: 502,
-        body: JSON.stringify({ error: 'Could not save the letter right now.' })
-      };
-    }
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
-    };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Something went wrong saving the letter.' })
-    };
+    return new Response(JSON.stringify({ error: "Could not save the letter." }), { status: 500 });
   }
 };
+
+export const config = { path: "/api/save" };
