@@ -163,27 +163,6 @@
   }
   .b-continue-btn.b-ready{ opacity:1; pointer-events:auto; }
 
-  /* ---- scene: memory lane ---- */
-  .b-lights{ position:absolute; top:14%; left:8%; right:8%; height:2px; background:rgba(255,216,140,0.5); }
-  .b-lights::before, .b-lights::after{ content:''; }
-  .b-bulb{ position:absolute; top:14%; width:6px; height:8px; border-radius:50%; background:var(--b-gold); box-shadow:0 0 8px 3px rgba(255,216,140,0.6); animation: b-twinkle 2.4s ease-in-out infinite; }
-  @keyframes b-twinkle{ 0%,100%{ opacity:0.5; } 50%{ opacity:1; } }
-  .b-polaroid{
-    position:relative; width:min(66vw,260px); background:#fdfaf4; padding:10px 10px 34px; border-radius:4px;
-    box-shadow:0 18px 34px rgba(0,0,0,0.4); margin-top:18px;
-    opacity:0; transform:scale(0.9) rotate(-2deg); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.3,.7,.3,1);
-  }
-  .b-polaroid.b-shown{ opacity:1; transform:scale(1) rotate(-2deg); }
-  .b-polaroid img, .b-polaroid .ph-fallback{ width:100%; aspect-ratio:1/1; object-fit:cover; display:block; border-radius:2px; }
-  .b-polaroid .ph-fallback{ display:flex; align-items:center; justify-content:center; color:#a8829a; font-size:13px; }
-  .b-polaroid figcaption{ font-family:'Caveat',cursive; font-size:17px; color:#5c3a3a; margin-top:8px; text-align:center; }
-  .b-dots{ display:flex; gap:6px; margin-top:16px; }
-  .b-dot{ width:6px; height:6px; border-radius:50%; background:rgba(255,241,222,0.3); transition:background 0.3s ease; }
-  .b-dot.b-on{ background:var(--b-gold); }
-  .b-memory-heading{ position:absolute; top:6%; left:50%; transform:translateX(-50%); text-align:center; }
-  .b-memory-heading h2{ color:#ffe9d6; font-size:clamp(18px,5vw,24px); margin:0 0 2px; }
-  .b-memory-heading p{ color:rgba(255,241,222,0.55); font-size:12px; margin:0; }
-
   @media (prefers-reduced-motion: reduce){
     .b-balloon-visual, .b-flame, .htw, .cupid-heart svg{ animation:none !important; }
   }
@@ -605,12 +584,6 @@
         'You make normal days feel special',
         'Your laugh is my favorite sound',
         'You always show up, every time'
-      ],
-      memories: [
-        { src: '', caption: "the day we first met" },
-        { src: '', caption: "still my favorite person" },
-        { src: '', caption: "random tuesday, felt like magic" },
-        { src: '', caption: "couldn't stop laughing here" }
       ]
     };
   </script>
@@ -657,25 +630,11 @@
     </div>
   </div>
 
-  <div class="bscene" id="bsc-memories" data-scene="4">
-    <div class="b-memory-heading">
-      <h2>A walk down memory lane</h2>
-      <p>tap to keep going</p>
-    </div>
-    <div class="b-lights" id="lightsBar"></div>
-    <figure class="b-polaroid" id="polaroid">
-      <div class="ph-fallback" id="polaroidImg">photo</div>
-      <figcaption id="polaroidCaption"></figcaption>
-    </figure>
-    <div class="b-dots" id="memoryDots"></div>
-    <button class="b-continue-btn b-ready" id="memoryContinue" style="margin-top:14px;">Keep going</button>
-  </div>
-
 </div>
 
 <script>
 (function(){
-  const CONFIG = window.BDAY_CONFIG || { name:'friend', age:'', reasons:[], memories:[] };
+  const CONFIG = window.BDAY_CONFIG || { name:'friend', age:'', reasons:[] };
   const scenes = Array.from(document.querySelectorAll('.bscene'));
   const stage = document.getElementById('scene-birthday');
   let currentScene = 0;
@@ -846,53 +805,7 @@
     slot.addEventListener('click', onTap);
     slot.addEventListener('touchstart', onTap, { passive:false });
   });
-  balloonContinue.addEventListener('click', ()=> goTo(4));
-
-  // ---- scene 4: memory lane ----
-  const lightsBar = document.getElementById('lightsBar');
-  for(let i=0;i<9;i++){
-    const b = document.createElement('div');
-    b.className = 'b-bulb';
-    b.style.left = (i*12+2)+'%';
-    b.style.animationDelay = (i*0.2)+'s';
-    lightsBar.appendChild(b);
-  }
-  const memories = CONFIG.memories && CONFIG.memories.length ? CONFIG.memories : [{src:'',caption:'a memory worth keeping'}];
-  const polaroid = document.getElementById('polaroid');
-  const polaroidImg = document.getElementById('polaroidImg');
-  const polaroidCaption = document.getElementById('polaroidCaption');
-  const memoryDots = document.getElementById('memoryDots');
-  const memoryContinue = document.getElementById('memoryContinue');
-  let memIndex = 0;
-
-  memories.forEach((m,i)=>{
-    const dot = document.createElement('div');
-    dot.className = 'b-dot' + (i===0 ? ' b-on' : '');
-    memoryDots.appendChild(dot);
-  });
-
-  function showMemory(i){
-    polaroid.classList.remove('b-shown');
-    setTimeout(()=>{
-      const m = memories[i];
-      if(m.src){
-        polaroidImg.outerHTML = `<img id="polaroidImg" src="${m.src}" alt="">`;
-      } else {
-        document.getElementById('polaroidImg') && (document.getElementById('polaroidImg').textContent = 'add a photo here');
-      }
-      polaroidCaption.textContent = m.caption || '';
-      Array.from(memoryDots.children).forEach((d,di)=> d.classList.toggle('b-on', di===i));
-      polaroid.classList.add('b-shown');
-    }, 200);
-  }
-  showMemory(0);
-  requestAnimationFrame(()=> polaroid.classList.add('b-shown'));
-
-  memoryContinue.addEventListener('click', ()=>{
-    memIndex++;
-    if(memIndex >= memories.length){ goTo(5); return; }
-    showMemory(memIndex);
-  });
+  balloonContinue.addEventListener('click', ()=> transitionToEnvelope());
 })();
 </script>
 
@@ -1092,20 +1005,26 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if(!res.ok || !data.url) throw new Error(data.error || 'could not seal letter');
+      let data = {};
+      try{ data = await res.json(); }catch(parseErr){ /* non-JSON error page */ }
+      if(!res.ok || !data.url) throw new Error(data.error || ('server said ' + res.status));
       const url = window.location.origin + window.location.pathname + '?blob=' + encodeURIComponent(data.url);
       await copyToClipboard(url);
       shareBtn.textContent = 'link copied \u2713';
       shareBtn.classList.add('copied');
     }catch(e){
-      shareBtn.textContent = "couldn't reach the mailbox \u2014 try again";
+      // show the real reason so problems are diagnosable, not just "try again"
+      console.error('save failed:', e);
+      shareBtn.textContent = "couldn't save \u2014 tap for details";
+      shareBtn.disabled = false; // so the details tap below is actually clickable
+      shareBtn.onclick = ()=>{ alert('Saving failed:\n\n' + (e.message || e) + '\n\nIf this mentions Blob storage, connect a Blob store in your Vercel project under Storage, then redeploy.'); };
+      setTimeout(()=>{ shareBtn.onclick = null; }, 8000);
     }finally{
       setTimeout(()=>{
         shareBtn.textContent = original;
         shareBtn.classList.remove('copied');
         shareBtn.disabled = false;
-      }, 2600);
+      }, 8000);
     }
   });
 
