@@ -8,9 +8,9 @@
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap');
 
   :root{
-    --dusk-a:#231934;
-    --dusk-b:#453766;
-    --dusk-c:#8b7ab8;
+    --dusk-a:#2b1330;
+    --dusk-b:#5c2748;
+    --dusk-c:#a44a72;
     --amber:#e0b8e8;
     --parchment:#f4e8d8;
     --parchment-shadow:#c9a876;
@@ -22,13 +22,182 @@
   html,body{
     margin:0; padding:0; height:100%;
     overflow:hidden;
-    background:
-      radial-gradient(ellipse 60% 45% at 50% 8%, rgba(224,184,232,0.3), transparent 60%),
-      radial-gradient(ellipse 80% 60% at 50% 100%, rgba(69,55,102,0.65), transparent 70%),
-      linear-gradient(160deg, var(--dusk-a) 0%, var(--dusk-b) 55%, var(--dusk-c) 100%);
-    font-family:'Jost', sans-serif;
     touch-action: manipulation;
   }
+
+  /* ================= BIRTHDAY FLOW (multi-scene) ================= */
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@600;700&display=swap');
+
+  :root{
+    --b-dusk-1:#2b1330;
+    --b-dusk-2:#5c2748;
+    --b-dusk-3:#a44a72;
+    --b-gold:#ffd88c;
+    --b-card:#fdf3e7;
+    --b-ink:#4a2c2c;
+  }
+
+  #scene-birthday{
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse 100% 80% at 50% 100%, var(--b-dusk-3) 0%, var(--b-dusk-2) 45%, var(--b-dusk-1) 100%);
+    font-family:'Baloo 2', sans-serif;
+    transition: opacity 0.9s ease;
+    z-index:5;
+    overflow:hidden;
+  }
+  #scene-birthday:not(.active){ opacity:0; pointer-events:none; z-index:0; }
+
+  .bscene{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.7s ease;
+    text-align:center; padding:0 8vw;
+  }
+  .bscene.active{ opacity:1; pointer-events:auto; }
+
+  .b-spark{
+    position:absolute; border-radius:50%; background:#fff; pointer-events:none;
+    animation: b-drift linear infinite;
+  }
+  @keyframes b-drift{
+    0%{ transform:translateY(0); opacity:0; }
+    10%{ opacity:0.9; }
+    90%{ opacity:0.7; }
+    100%{ transform:translateY(-100vh); opacity:0; }
+  }
+
+  .tap-hint{
+    position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+    color:rgba(255,241,222,0.55); font-size:13px; letter-spacing:0.03em;
+    animation: b-pulse 2s ease-in-out infinite;
+  }
+  @keyframes b-pulse{ 0%,100%{opacity:0.4;} 50%{opacity:0.85;} }
+
+  /* ---- scene: cupid ---- */
+  .cupid-heart{ position:relative; width:120px; height:110px; filter:drop-shadow(0 0 26px rgba(255,120,150,0.65)); }
+  .cupid-heart svg{ width:100%; height:100%; animation: b-heartbeat 1.8s ease-in-out infinite; }
+  @keyframes b-heartbeat{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
+  .cupid-arrow{
+    position:absolute; left:-30px; top:52%; width:180px; height:2px;
+    background:#3a2a1c; transform:rotate(-18deg);
+  }
+  .cupid-arrow::after{
+    content:''; position:absolute; right:-2px; top:-5px;
+    border-top:6px solid transparent; border-bottom:6px solid transparent; border-left:11px solid #3a2a1c;
+  }
+
+  /* ---- scene: name reveal ---- */
+  .heart-tree{ position:relative; width:260px; height:200px; margin-bottom:6px; }
+  .heart-tree .htw{ position:absolute; font-size:var(--sz,16px); color:var(--c,#e88bab); opacity:0.9; animation: b-sway ease-in-out infinite; }
+  @keyframes b-sway{ 0%,100%{ transform:translateY(0) rotate(-4deg); } 50%{ transform:translateY(-5px) rotate(4deg); } }
+  .heart-tree .trunk{ position:absolute; left:50%; bottom:0; width:3px; height:56px; background:linear-gradient(#6b4a34,#3a2a1c); transform:translateX(-50%); }
+  .b-eyebrow{ font-size:14px; color:rgba(255,241,222,0.7); margin:4px 0; }
+  .b-title{ font-size:clamp(26px,7vw,42px); color:#ffe0ea; margin:2px 0; text-shadow:0 0 18px rgba(255,150,180,0.4); line-height:1.25; }
+  .b-sub{ font-size:14px; color:rgba(255,241,222,0.65); margin-top:2px; }
+
+  /* ---- scene: cake wish ---- */
+  .b-cake-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; margin-top:6px; }
+  .b-eyebrow-tag{ font-size:15px; color:#ffe9d6; margin-bottom:22px; }
+  .b-candle{ position:relative; width:9px; height:40px; margin-bottom:-2px; z-index:2; }
+  .b-candle-body{ width:100%; height:100%; border-radius:3px; background:repeating-linear-gradient(90deg,#e8546b 0 3px,#fff1de 3px 6px); box-shadow:0 2px 6px rgba(0,0,0,0.4); }
+  .b-wick{ position:absolute; left:50%; top:-5px; transform:translateX(-50%); width:2px; height:6px; background:#3a2a1c; }
+  .b-flame-wrap{ position:absolute; left:50%; bottom:100%; transform:translateX(-50%); width:54px; height:56px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:2px; cursor:pointer; }
+  .b-flame{
+    width:13px; height:30px; border-radius:50% 50% 50% 50% / 65% 65% 35% 35%;
+    background: radial-gradient(circle at 50% 68%, #fff3d6 0%, var(--b-gold) 38%, #ff7a30 72%, #d4460f 100%);
+    transform-origin:bottom center; animation: b-flicker 2.4s ease-in-out infinite;
+    box-shadow:0 0 16px 7px rgba(255,216,140,0.55), 0 0 40px 18px rgba(255,140,40,0.22);
+    transition: opacity 0.3s ease;
+  }
+  .b-flame.b-unlit{ opacity:0; animation:none; }
+  @keyframes b-flicker{
+    0%,100%{ transform:scaleY(1) scaleX(1) rotate(0deg); }
+    25%{ transform:scaleY(1.06) scaleX(0.94) rotate(-2.5deg); }
+    50%{ transform:scaleY(0.92) scaleX(1.06) rotate(2.5deg); }
+    75%{ transform:scaleY(1.1) scaleX(0.9) rotate(-1.5deg); }
+  }
+  @keyframes b-snuff{ 0%{ transform:scaleY(1) rotate(0deg); opacity:1;} 100%{ transform:scaleY(0.15) rotate(35deg); opacity:0;} }
+  .b-tier{ position:relative; border-radius:10px 10px 6px 6px; box-shadow:0 14px 24px rgba(0,0,0,0.45), inset 0 -8px 14px rgba(0,0,0,0.15), inset 0 6px 10px rgba(255,255,255,0.25); }
+  .b-tier::before{
+    content:''; position:absolute; left:-4%; right:-4%; top:-10px; height:20px;
+    background-image:
+      radial-gradient(circle at 10% 60%, #fff1de 0 8px, transparent 9px),
+      radial-gradient(circle at 30% 60%, #fff1de 0 8px, transparent 9px),
+      radial-gradient(circle at 50% 60%, #fff1de 0 8px, transparent 9px),
+      radial-gradient(circle at 70% 60%, #fff1de 0 8px, transparent 9px),
+      radial-gradient(circle at 90% 60%, #fff1de 0 8px, transparent 9px);
+  }
+  .b-tier-top{ width:108px; height:50px; background:linear-gradient(180deg,#f2a6c1,#d9789e); }
+  .b-tier-bottom{ width:156px; height:62px; margin-top:6px; background:linear-gradient(180deg,#fff1de,#e8cfa9); }
+  .b-ground-shadow{ position:absolute; left:50%; bottom:-10px; transform:translateX(-50%); width:190px; height:26px; border-radius:50%; background:radial-gradient(ellipse,rgba(0,0,0,0.5),transparent 70%); filter:blur(2px); z-index:0; }
+  .b-wish-text{ margin-top:26px; font-size:14px; color:rgba(255,241,222,0.7); }
+
+  /* ---- scene: balloons ---- */
+  .b-balloon-field{ position:absolute; inset:0; }
+  .b-balloon-slot{ position:absolute; transition: transform 0.5s cubic-bezier(.34,1.6,.4,1); cursor:pointer; }
+  .b-balloon-visual{ animation: b-bob ease-in-out infinite; transform-origin:center; }
+  @keyframes b-bob{ 0%,100%{ transform:translateY(0) rotate(var(--r0,-3deg)); } 50%{ transform:translateY(-18px) rotate(var(--r1,3deg)); } }
+  .b-balloon-body{ width:100%; height:120%; border-radius:50% 50% 50% 50% / 58% 58% 42% 42%; position:relative;
+    box-shadow: inset -9px -12px 20px rgba(0,0,0,0.25), inset 9px 10px 18px rgba(255,255,255,0.3), 0 12px 22px rgba(0,0,0,0.4); }
+  .b-balloon-knot{ position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; }
+  .b-balloon-string{ position:absolute; left:50%; top:100%; width:1px; height:14vh; max-height:110px; background:linear-gradient(rgba(255,255,255,0.4),rgba(255,255,255,0.06)); }
+  .b-shard{ position:fixed; left:0; top:0; width:6px; height:6px; border-radius:1px; pointer-events:none; z-index:22; transform-origin:0 0; animation: b-shard-fly 0.55s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes b-shard-fly{ 0%{ transform:translate(var(--x),var(--y)) rotate(var(--ang)) translateY(0) scale(1); opacity:1;} 100%{ transform:translate(var(--x),var(--y)) rotate(var(--ang)) translateY(-34px) scale(0.3); opacity:0;} }
+  .b-balloon-heading{ position:absolute; top:9%; left:50%; transform:translateX(-50%); width:82vw; }
+  .b-balloon-heading h2{ color:#ffe9d6; font-size:clamp(19px,5vw,26px); margin:0 0 4px; }
+  .b-balloon-heading p{ color:rgba(255,241,222,0.6); font-size:13px; margin:0; }
+  .b-reasons{ position:absolute; bottom:8%; left:50%; transform:translateX(-50%); width:min(84vw,380px); display:flex; flex-direction:column; gap:9px; }
+  .b-reason-card{
+    background:rgba(253,243,231,0.94); border-radius:12px; padding:10px 14px;
+    color:var(--b-ink); font-size:14px; text-align:left; box-shadow:0 8px 20px rgba(0,0,0,0.3);
+    opacity:0; transform:translateY(14px) scale(0.92); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.3,.7,.3,1);
+  }
+  .b-reason-card.b-shown{ opacity:1; transform:translateY(0) scale(1); }
+  .b-reason-card .tag{ display:inline-block; font-size:10px; letter-spacing:0.04em; background:var(--b-dusk-3); color:#fff; border-radius:8px; padding:2px 7px; margin-bottom:4px; }
+  .b-continue-btn{
+    margin-top:4px; align-self:center; font-family:'Baloo 2',sans-serif; font-weight:600; font-size:14px;
+    color:#4a2c2c; background:linear-gradient(180deg,#ffe0ae,var(--b-gold)); border:none; border-radius:20px;
+    padding:9px 22px; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,0.3);
+    opacity:0; pointer-events:none; transition: opacity 0.5s ease;
+  }
+  .b-continue-btn.b-ready{ opacity:1; pointer-events:auto; }
+
+  /* ---- scene: memory lane ---- */
+  .b-lights{ position:absolute; top:14%; left:8%; right:8%; height:2px; background:rgba(255,216,140,0.5); }
+  .b-lights::before, .b-lights::after{ content:''; }
+  .b-bulb{ position:absolute; top:14%; width:6px; height:8px; border-radius:50%; background:var(--b-gold); box-shadow:0 0 8px 3px rgba(255,216,140,0.6); animation: b-twinkle 2.4s ease-in-out infinite; }
+  @keyframes b-twinkle{ 0%,100%{ opacity:0.5; } 50%{ opacity:1; } }
+  .b-polaroid{
+    position:relative; width:min(66vw,260px); background:#fdfaf4; padding:10px 10px 34px; border-radius:4px;
+    box-shadow:0 18px 34px rgba(0,0,0,0.4); margin-top:18px;
+    opacity:0; transform:scale(0.9) rotate(-2deg); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.3,.7,.3,1);
+  }
+  .b-polaroid.b-shown{ opacity:1; transform:scale(1) rotate(-2deg); }
+  .b-polaroid img, .b-polaroid .ph-fallback{ width:100%; aspect-ratio:1/1; object-fit:cover; display:block; border-radius:2px; }
+  .b-polaroid .ph-fallback{ display:flex; align-items:center; justify-content:center; color:#a8829a; font-size:13px; }
+  .b-polaroid figcaption{ font-family:'Caveat',cursive; font-size:17px; color:#5c3a3a; margin-top:8px; text-align:center; }
+  .b-dots{ display:flex; gap:6px; margin-top:16px; }
+  .b-dot{ width:6px; height:6px; border-radius:50%; background:rgba(255,241,222,0.3); transition:background 0.3s ease; }
+  .b-dot.b-on{ background:var(--b-gold); }
+  .b-memory-heading{ position:absolute; top:6%; left:50%; transform:translateX(-50%); text-align:center; }
+  .b-memory-heading h2{ color:#ffe9d6; font-size:clamp(18px,5vw,24px); margin:0 0 2px; }
+  .b-memory-heading p{ color:rgba(255,241,222,0.55); font-size:12px; margin:0; }
+
+  @media (prefers-reduced-motion: reduce){
+    .b-balloon-visual, .b-flame, .htw, .cupid-heart svg{ animation:none !important; }
+  }
+  /* ================= END BIRTHDAY FLOW ================= */
+
+
+  #scene-envelope{
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse 100% 80% at 50% 100%, var(--dusk-c) 0%, var(--dusk-b) 45%, var(--dusk-a) 100%);
+    font-family:'Jost', sans-serif;
+    transition: opacity 0.9s ease;
+  }
+  #scene-envelope:not(.active){ opacity:0; pointer-events:none; z-index:1; }
+  #scene-envelope.active{ opacity:1; pointer-events:auto; z-index:3; }
 
   .grain{
     position:fixed; inset:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
@@ -36,17 +205,6 @@
   }
 
   .scene{ position:fixed; inset:0; }
-
-  .ember{
-    position:absolute; border-radius:50%;
-    background: radial-gradient(circle, rgba(224,184,232,0.85), rgba(224,184,232,0));
-    pointer-events:none;
-    animation: drift 14s ease-in-out infinite;
-  }
-  @keyframes drift{
-    0%,100%{ transform:translateY(0) scale(1); opacity:0.5;}
-    50%{ transform:translateY(-40px) scale(1.3); opacity:0.9;}
-  }
 
   .doodle{
     position:absolute; pointer-events:none; z-index:1;
@@ -124,6 +282,31 @@
     50%{ transform:translateY(-10px) rotate(1.5deg); }
   }
   .envelope-pos.opened .envelope-bob{ animation:none; transform:none; }
+
+  .envelope-flip{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition: transform 0.6s cubic-bezier(.5,.05,.3,1);
+  }
+  .envelope-flip.flipped{ transform:rotateY(180deg); }
+
+  .envelope-face{
+    position:absolute; inset:0;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  }
+  .envelope-face-back{
+    transform:rotateY(180deg);
+    background:linear-gradient(160deg, var(--parchment) 0%, #e6d3ba 100%);
+    border-radius:4px;
+    box-shadow: 0 18px 40px -10px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  }
+  .peek-squiggle{ width:52%; height:auto; opacity:0.6; }
+  .peek-squiggle path{ fill:none; stroke:var(--wax); stroke-width:2; stroke-linecap:round; }
+  .peek-text{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    color:var(--wax); font-size:14px; opacity:0.75;
+  }
 
   .envelope-body{
     position:absolute; left:0; bottom:0; width:100%; height:74%;
@@ -340,6 +523,40 @@
     border-radius:3px; box-shadow:0 14px 30px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.25);
     pointer-events:none;
   }
+  .scatter-photo::after{
+    content:''; position:absolute; top:0; right:0; width:0; height:0;
+    border-style:solid; border-width:0 15px 15px 0;
+    border-color:transparent #ede1cf transparent transparent;
+    filter:drop-shadow(-2px 2px 3px rgba(0,0,0,0.35));
+    transform-origin:top right;
+    animation:peel-settle 0.7s ease-out both;
+    animation-delay:inherit;
+  }
+  @keyframes peel-settle{
+    0%{ transform:rotate(-30deg) scale(1.35); opacity:0.35; }
+    100%{ transform:rotate(0deg) scale(1); opacity:1; }
+  }
+
+  .click-spark{
+    position:fixed; left:0; top:0; width:2px; height:12px;
+    background:linear-gradient(var(--wax), transparent);
+    border-radius:2px; pointer-events:none; z-index:50;
+    transform-origin:0 0;
+    animation:spark-fly 0.5s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes spark-fly{
+    0%{ transform:translate(var(--x),var(--y)) rotate(var(--ang)) translateY(0); opacity:1; }
+    100%{ transform:translate(var(--x),var(--y)) rotate(var(--ang)) translateY(-24px); opacity:0; }
+  }
+
+  .confetti-bit{
+    position:fixed; left:0; top:0; width:7px; height:10px; pointer-events:none; z-index:30;
+    animation-name:confetti-fall; animation-timing-function:cubic-bezier(.3,.6,.4,1); animation-fill-mode:forwards;
+  }
+  @keyframes confetti-fall{
+    0%{ transform:translate(var(--x0),var(--y0)) rotate(0deg); opacity:1; }
+    100%{ transform:translate(var(--x1),var(--y1)) rotate(var(--spin)); opacity:0; }
+  }
   .scatter-photo-inner{
     animation: flutter ease-in-out infinite;
     transform-origin:center;
@@ -369,24 +586,339 @@
   textarea[readonly]::placeholder{ opacity:0; }
 
   @media (prefers-reduced-motion: reduce){
-    .envelope-bob, .ember, .doodle, .hint, .scatter-photo-inner, .petal{ animation:none !important; }
+    .envelope-bob, .doodle, .hint, .scatter-photo-inner, .petal{ animation:none !important; }
   }
 </style>
 </head>
 <body>
 
+<div id="scene-birthday" class="active">
+
+  <!-- EDIT THESE to personalize -->
+  <script>
+    window.BDAY_CONFIG = {
+      name: 'Arina',
+      age: 26,
+      reasons: [
+        'Nobody listens the way you do',
+        'You make bad days feel lighter',
+        'You make normal days feel special',
+        'Your laugh is my favorite sound',
+        'You always show up, every time'
+      ],
+      memories: [
+        { src: '', caption: "the day we first met" },
+        { src: '', caption: "still my favorite person" },
+        { src: '', caption: "random tuesday, felt like magic" },
+        { src: '', caption: "couldn't stop laughing here" }
+      ]
+    };
+  </script>
+
+  <div class="bscene active" id="bsc-cupid" data-scene="0">
+    <div class="cupid-heart">
+      <svg viewBox="0 0 100 90"><path d="M50 85 C10 60 0 35 20 18 C35 5 50 15 50 28 C50 15 65 5 80 18 C100 35 90 60 50 85 Z" fill="#ff6f91"/></svg>
+      <div class="cupid-arrow"></div>
+    </div>
+    <p class="tap-hint">tap to continue</p>
+  </div>
+
+  <div class="bscene" id="bsc-name" data-scene="1">
+    <div class="heart-tree" id="heartTree"><div class="trunk"></div></div>
+    <p class="b-eyebrow">it's officially your day</p>
+    <h1 class="b-title" id="nameTitle">Happy Birthday,<br>friend</h1>
+    <p class="b-sub" id="ageSub">and just like that, another year wiser</p>
+    <p class="tap-hint">tap to continue</p>
+  </div>
+
+  <div class="bscene" id="bsc-cake" data-scene="2">
+    <p class="b-eyebrow-tag">First things first 🎂</p>
+    <div class="b-cake-wrap">
+      <div class="b-candle">
+        <div class="b-flame-wrap" id="bFlameWrap"><div class="b-flame" id="bFlame"></div></div>
+        <div class="b-wick"></div>
+        <div class="b-candle-body"></div>
+      </div>
+      <div class="b-tier b-tier-top"></div>
+      <div class="b-tier b-tier-bottom"></div>
+      <div class="b-ground-shadow"></div>
+    </div>
+    <p class="b-wish-text">touch the flame &mdash; make a wish</p>
+  </div>
+
+  <div class="bscene" id="bsc-balloons" data-scene="3">
+    <div class="b-balloon-heading">
+      <h2>Pop the balloons 🎈</h2>
+      <p id="balloonSub">5 balloons. Each one holds a reason you're loved.</p>
+    </div>
+    <div class="b-balloon-field" id="balloonField"></div>
+    <div class="b-reasons" id="reasonsList">
+      <button class="b-continue-btn" id="balloonContinue">Keep going</button>
+    </div>
+  </div>
+
+  <div class="bscene" id="bsc-memories" data-scene="4">
+    <div class="b-memory-heading">
+      <h2>A walk down memory lane</h2>
+      <p>tap to keep going</p>
+    </div>
+    <div class="b-lights" id="lightsBar"></div>
+    <figure class="b-polaroid" id="polaroid">
+      <div class="ph-fallback" id="polaroidImg">photo</div>
+      <figcaption id="polaroidCaption"></figcaption>
+    </figure>
+    <div class="b-dots" id="memoryDots"></div>
+    <button class="b-continue-btn b-ready" id="memoryContinue" style="margin-top:14px;">Keep going</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const CONFIG = window.BDAY_CONFIG || { name:'friend', age:'', reasons:[], memories:[] };
+  const scenes = Array.from(document.querySelectorAll('.bscene'));
+  const stage = document.getElementById('scene-birthday');
+  let currentScene = 0;
+
+  function goTo(idx){
+    if(idx >= scenes.length){ transitionToEnvelope(); return; }
+    scenes[currentScene].classList.remove('active');
+    scenes[idx].classList.add('active');
+    currentScene = idx;
+  }
+
+  function transitionToEnvelope(){
+    stage.classList.remove('active');
+    const envelopeScene = document.getElementById('scene-envelope');
+    if(envelopeScene){ envelopeScene.classList.add('active'); }
+  }
+
+  // ambient upward sparks across the whole birthday flow
+  for(let i=0;i<20;i++){
+    const s = document.createElement('div');
+    s.className = 'b-spark';
+    const size = 1.5 + Math.random()*2.5;
+    s.style.width = size+'px'; s.style.height = size+'px';
+    s.style.left = Math.random()*100+'vw';
+    s.style.bottom = (Math.random()*20)+'vh';
+    s.style.animationDuration = (8+Math.random()*10)+'s';
+    s.style.animationDelay = (Math.random()*-14)+'s';
+    stage.appendChild(s);
+  }
+
+  function getPoint(ev){
+    if(ev.touches && ev.touches[0]) return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+    if(ev.changedTouches && ev.changedTouches[0]) return { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY };
+    return { x: ev.clientX, y: ev.clientY };
+  }
+  function spawnShards(x, y, color){
+    const N = 8;
+    for(let i=0;i<N;i++){
+      const ang = (360/N)*i + (Math.random()*20-10);
+      const el = document.createElement('div');
+      el.className = 'b-shard';
+      el.style.background = color;
+      el.style.setProperty('--x', x+'px');
+      el.style.setProperty('--y', y+'px');
+      el.style.setProperty('--ang', ang+'deg');
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 600);
+    }
+  }
+
+  // ---- scene 0: cupid ----
+  document.getElementById('bsc-cupid').addEventListener('click', ()=> goTo(1));
+
+  // ---- scene 1: name reveal ----
+  document.getElementById('nameTitle').innerHTML = `Happy Birthday,<br>${CONFIG.name}`;
+  document.getElementById('ageSub').textContent = CONFIG.age
+    ? `and just like that, you're turning ${CONFIG.age}`
+    : `and just like that, another year wiser`;
+  const heartTree = document.getElementById('heartTree');
+  const treeColors = ['#e88bab', '#ffd88c', '#f2a6c1'];
+  for(let i=0;i<34;i++){
+    const h = document.createElement('span');
+    h.className = 'htw';
+    h.textContent = '\u2665';
+    // rejection-sample a point inside an ellipse for a cohesive canopy cluster
+    let cx, cy, tries = 0;
+    do{
+      cx = (Math.random()*2-1);
+      cy = (Math.random()*2-1);
+      tries++;
+    } while((cx*cx + cy*cy) > 1 && tries < 20);
+    const px = 130 + cx * 105;
+    const py = 60 + cy * 55;
+    h.style.left = Math.max(4, Math.min(250, px)) + 'px';
+    h.style.top = Math.max(0, Math.min(140, py)) + 'px';
+    h.style.setProperty('--sz', (10+Math.random()*14)+'px');
+    h.style.setProperty('--c', treeColors[i % treeColors.length]);
+    h.style.animationDuration = (2.4+Math.random()*2)+'s';
+    h.style.animationDelay = (Math.random()*2)+'s';
+    heartTree.appendChild(h);
+  }
+  document.getElementById('bsc-name').addEventListener('click', ()=> goTo(2));
+
+  // ---- scene 2: cake wish ----
+  const bFlame = document.getElementById('bFlame');
+  const bFlameWrap = document.getElementById('bFlameWrap');
+  let wishMade = false;
+  function handleCandle(ev){
+    ev.preventDefault(); ev.stopPropagation();
+    if(wishMade) return;
+    wishMade = true;
+    const pt = getPoint(ev);
+    spawnShards(pt.x, pt.y, '#ffd88c');
+    bFlame.style.animation = 'b-snuff 0.45s ease-in forwards';
+    setTimeout(()=>{ bFlame.classList.add('b-unlit'); }, 450);
+    setTimeout(()=> goTo(3), 1100);
+  }
+  bFlameWrap.addEventListener('click', handleCandle);
+  bFlameWrap.addEventListener('touchstart', handleCandle, { passive:false });
+
+  // ---- scene 3: balloons + reasons ----
+  const balloonField = document.getElementById('balloonField');
+  const reasonsList = document.getElementById('reasonsList');
+  const balloonContinue = document.getElementById('balloonContinue');
+  const balloonColors = ['#e85d75', '#4fc1e9', '#ffd166', '#b892e8', '#6fcf97'];
+  const balloonSpots = [
+    { left:'14%', top:'20%' }, { left:'30%', top:'42%' },
+    { left:'50%', top:'16%' }, { left:'70%', top:'40%' },
+    { left:'86%', top:'22%' }
+  ];
+  const reasons = CONFIG.reasons && CONFIG.reasons.length ? CONFIG.reasons : ['You make everything better'];
+  let poppedCount = 0;
+
+  balloonSpots.forEach((spot, i)=>{
+    const color = balloonColors[i % balloonColors.length];
+    const slot = document.createElement('div');
+    slot.className = 'b-balloon-slot';
+    slot.style.left = spot.left; slot.style.top = spot.top;
+    const size = 50 + Math.random()*16;
+    slot.style.width = size+'px'; slot.style.height = (size*1.2)+'px';
+
+    const visual = document.createElement('div');
+    visual.className = 'b-balloon-visual';
+    visual.style.width = '100%'; visual.style.height = '100%';
+    visual.style.animationDuration = (4.2+Math.random()*2.2)+'s';
+    visual.style.animationDelay = (Math.random()*2)+'s';
+    visual.style.setProperty('--r0', (Math.random()*10-5)+'deg');
+    visual.style.setProperty('--r1', (Math.random()*10-5)+'deg');
+
+    const body = document.createElement('div');
+    body.className = 'b-balloon-body';
+    body.style.background = `radial-gradient(circle at 32% 28%, ${color}, ${color}dd 55%, ${color}99 100%)`;
+    const knot = document.createElement('div');
+    knot.className = 'b-balloon-knot';
+    knot.style.borderTop = `6px solid ${color}`;
+    const string = document.createElement('div');
+    string.className = 'b-balloon-string';
+
+    visual.appendChild(body);
+    body.appendChild(knot);
+    slot.appendChild(visual);
+    slot.appendChild(string);
+    balloonField.appendChild(slot);
+
+    let popped = false;
+    const onTap = (ev)=>{
+      ev.preventDefault();
+      if(popped) return;
+      popped = true;
+      const pt = getPoint(ev);
+      spawnShards(pt.x, pt.y, color);
+      slot.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out 0.05s';
+      slot.style.transform = 'scale(1.3)';
+      slot.style.opacity = '0';
+      setTimeout(()=>slot.remove(), 300);
+
+      const card = document.createElement('div');
+      card.className = 'b-reason-card';
+      card.innerHTML = `<span class="tag">reason no. ${poppedCount+1}</span><br>${reasons[poppedCount % reasons.length]}`;
+      reasonsList.insertBefore(card, balloonContinue);
+      requestAnimationFrame(()=> card.classList.add('b-shown'));
+
+      poppedCount++;
+      if(poppedCount >= balloonSpots.length){
+        balloonContinue.classList.add('b-ready');
+      }
+    };
+    slot.addEventListener('click', onTap);
+    slot.addEventListener('touchstart', onTap, { passive:false });
+  });
+  balloonContinue.addEventListener('click', ()=> goTo(4));
+
+  // ---- scene 4: memory lane ----
+  const lightsBar = document.getElementById('lightsBar');
+  for(let i=0;i<9;i++){
+    const b = document.createElement('div');
+    b.className = 'b-bulb';
+    b.style.left = (i*12+2)+'%';
+    b.style.animationDelay = (i*0.2)+'s';
+    lightsBar.appendChild(b);
+  }
+  const memories = CONFIG.memories && CONFIG.memories.length ? CONFIG.memories : [{src:'',caption:'a memory worth keeping'}];
+  const polaroid = document.getElementById('polaroid');
+  const polaroidImg = document.getElementById('polaroidImg');
+  const polaroidCaption = document.getElementById('polaroidCaption');
+  const memoryDots = document.getElementById('memoryDots');
+  const memoryContinue = document.getElementById('memoryContinue');
+  let memIndex = 0;
+
+  memories.forEach((m,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'b-dot' + (i===0 ? ' b-on' : '');
+    memoryDots.appendChild(dot);
+  });
+
+  function showMemory(i){
+    polaroid.classList.remove('b-shown');
+    setTimeout(()=>{
+      const m = memories[i];
+      if(m.src){
+        polaroidImg.outerHTML = `<img id="polaroidImg" src="${m.src}" alt="">`;
+      } else {
+        document.getElementById('polaroidImg') && (document.getElementById('polaroidImg').textContent = 'add a photo here');
+      }
+      polaroidCaption.textContent = m.caption || '';
+      Array.from(memoryDots.children).forEach((d,di)=> d.classList.toggle('b-on', di===i));
+      polaroid.classList.add('b-shown');
+    }, 200);
+  }
+  showMemory(0);
+  requestAnimationFrame(()=> polaroid.classList.add('b-shown'));
+
+  memoryContinue.addEventListener('click', ()=>{
+    memIndex++;
+    if(memIndex >= memories.length){ goTo(5); return; }
+    showMemory(memIndex);
+  });
+})();
+</script>
+
+<div id="scene-envelope" class="scene-wrap">
 <div class="grain"></div>
 <div class="scene" id="scene">
-  <div class="hint" id="hint">catch the letter, if you can</div>
+  <div class="hint" id="hint">tap to open</div>
 
   <div class="envelope-pos" id="envelopePos">
     <div class="envelope-bob" id="envelopeBob">
-      <div class="envelope-flap">
-        <div class="envelope-stamp"></div>
+      <div class="envelope-flip" id="envelopeFlip">
+        <div class="envelope-face envelope-face-front">
+          <div class="envelope-flap">
+            <div class="envelope-stamp"></div>
+          </div>
+          <div class="seal">&hearts;</div>
+          <div class="envelope-body"></div>
+          <div class="envelope-ribbon"></div>
+        </div>
+        <div class="envelope-face envelope-face-back">
+          <svg class="peek-squiggle" viewBox="0 0 80 30" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6,15 Q18,2 30,15 T54,15 T74,14" />
+          </svg>
+          <div class="peek-text">not yet&hellip;</div>
+        </div>
       </div>
-      <div class="seal">&hearts;</div>
-      <div class="envelope-body"></div>
-      <div class="envelope-ribbon"></div>
     </div>
   </div>
 
@@ -416,6 +948,7 @@
 <script>
   const scene = document.getElementById('scene');
   const envelopePos = document.getElementById('envelopePos');
+  const envelopeFlip = document.getElementById('envelopeFlip');
   const hint = document.getElementById('hint');
   const letterAnchor = document.getElementById('letterAnchor');
   const letterPanel = document.getElementById('letterPanel');
@@ -495,9 +1028,9 @@
   });
 
   const params = new URLSearchParams(window.location.search);
-  const incomingId = params.get('id');
+  const incomingBlob = params.get('blob');
   const incomingMsg = params.get('msg'); // legacy fallback for links made before short-link support
-  const isRecipientView = !!incomingId || !!incomingMsg;
+  const isRecipientView = !!incomingBlob || !!incomingMsg;
   let currentPhotos = photosDataURLs;
   let incomingReady = null;
 
@@ -512,10 +1045,8 @@
     incomingReady = (async ()=>{
       let payload = { t: '', p: [] };
       try{
-        if(incomingId){
-          const res = await fetch('/api/letter?id=' + encodeURIComponent(incomingId), {
-            headers: { 'Accept': 'application/json' }
-          });
+        if(incomingBlob){
+          const res = await fetch(decodeURIComponent(incomingBlob), { headers: { 'Accept': 'application/json' } });
           if(!res.ok) throw new Error('not found');
           payload = await res.json();
         } else if(incomingMsg){
@@ -562,8 +1093,8 @@
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if(!res.ok || !data.id) throw new Error(data.error || 'could not seal letter');
-      const url = window.location.origin + window.location.pathname + '?id=' + data.id;
+      if(!res.ok || !data.url) throw new Error(data.error || 'could not seal letter');
+      const url = window.location.origin + window.location.pathname + '?blob=' + encodeURIComponent(data.url);
       await copyToClipboard(url);
       shareBtn.textContent = 'link copied \u2713';
       shareBtn.classList.add('copied');
@@ -643,34 +1174,9 @@
     setTimeout(()=>{ scatterLayer.innerHTML = ''; }, 600);
   }
 
-  const dodgeMessages = [
-    "catch the letter, if you can",
-    "not quite &mdash; try again",
-    "it's slipping away",
-    "so close, keep going",
-    "one more chance",
-    "alright &mdash; you've earned it. touch it once more"
-  ];
-
-  let dodges = 0;
-  const maxDodges = 5;
   let unlocked = false;
   let letterOpen = false;
   let animating = false;
-  let lastCorner = -1;
-
-  for(let i=0;i<10;i++){
-    const e = document.createElement('div');
-    e.className='ember';
-    const size = 3 + Math.random()*5;
-    e.style.width = size+'px';
-    e.style.height = size+'px';
-    e.style.left = Math.random()*100+'vw';
-    e.style.top = Math.random()*100+'vh';
-    e.style.animationDelay = (Math.random()*10)+'s';
-    e.style.animationDuration = (10+Math.random()*8)+'s';
-    scene.appendChild(e);
-  }
 
   // ambient hand-drawn squiggles for texture — purely decorative
   const doodlePaths = [
@@ -698,22 +1204,22 @@
     scene.appendChild(d);
   }
 
-  // gently falling petals and hearts drifting down the whole scene
-  for(let i=0;i<15;i++){
+  // a light touch of falling petals and hearts — kept sparse so it doesn't get busy
+  for(let i=0;i<7;i++){
     const p = document.createElement('div');
     const isHeart = Math.random() < 0.3;
     p.className = 'petal ' + (isHeart ? 'heart' : 'leaf');
     if(isHeart){
       p.innerHTML = '&hearts;';
-      p.style.setProperty('--fs', (10+Math.random()*8)+'px');
+      p.style.setProperty('--fs', (9+Math.random()*6)+'px');
     } else {
-      p.style.setProperty('--w', (7+Math.random()*6)+'px');
-      p.style.setProperty('--h', (10+Math.random()*8)+'px');
+      p.style.setProperty('--w', (6+Math.random()*5)+'px');
+      p.style.setProperty('--h', (9+Math.random()*6)+'px');
     }
     p.style.left = Math.random()*100+'vw';
-    p.style.setProperty('--sway', (14+Math.random()*26)+'px');
-    p.style.animationDuration = (13+Math.random()*10)+'s';
-    p.style.animationDelay = (Math.random()*-22)+'s';
+    p.style.setProperty('--sway', (14+Math.random()*22)+'px');
+    p.style.animationDuration = (16+Math.random()*12)+'s';
+    p.style.animationDelay = (Math.random()*-26)+'s';
     scene.appendChild(p);
   }
 
@@ -729,41 +1235,14 @@
     };
   }
 
-  function moveToDodgePosition(){
-    const b = safeBounds();
-    const corners = [
-      {x:b.minX, y:b.minY}, {x:b.maxX, y:b.minY},
-      {x:b.minX, y:b.maxY}, {x:b.maxX, y:b.maxY},
-      {x:(b.minX+b.maxX)/2, y:b.minY}, {x:(b.minX+b.maxX)/2, y:b.maxY}
-    ];
-    let idx;
-    do { idx = Math.floor(Math.random()*corners.length); } while(idx === lastCorner && corners.length>1);
-    lastCorner = idx;
-    const jitterX = (Math.random()-0.5)*40;
-    const jitterY = (Math.random()-0.5)*40;
-    const x = Math.min(b.maxX, Math.max(b.minX, corners[idx].x + jitterX));
-    const y = Math.min(b.maxY, Math.max(b.minY, corners[idx].y + jitterY));
-
-    const flightTransition = 'left 0.65s cubic-bezier(.34,1.56,.64,1), top 0.65s cubic-bezier(.34,1.56,.64,1), transform 0.65s cubic-bezier(.34,1.56,.64,1)';
-    const wiggleDir = Math.random() < 0.5 ? -1 : 1;
-
-    // a quick flinch-and-squash before it darts off, for a playful "startled" feel
-    envelopePos.style.transition = 'transform 0.14s ease-out';
-    envelopePos.style.transform = `translate(-50%,-50%) scale(1.14,0.82) rotate(${wiggleDir*11}deg)`;
-
-    setTimeout(()=>{
-      envelopePos.style.transition = flightTransition;
-      envelopePos.style.left = x + 'px';
-      envelopePos.style.top = y + 'px';
-      envelopePos.style.transform = `translate(-50%,-50%) rotate(${(Math.random()*20-10).toFixed(1)}deg)`;
-    }, 130);
-  }
-
   function moveToRest(){
     envelopePos.classList.add('opened');
     envelopePos.style.left = '50%';
     envelopePos.style.top = '17%';
     envelopePos.style.transform = 'translate(-50%,-50%)';
+    // push the hint safely below the envelope's resting spot so text
+    // never overlaps it, regardless of screen height
+    hint.style.top = 'calc(17% + 76px)';
   }
 
   // FLIP: animate letterPanel from the envelope's current box to its natural resting box (or reverse)
@@ -816,6 +1295,8 @@
     setTimeout(()=>{
       flipLetter(true);
       spawnPhotos();
+      const er = envelopePos.getBoundingClientRect();
+      spawnConfetti(er.left + er.width/2, er.top + er.height/2);
       letterOpen = true;
       setTimeout(()=>{ animating = false; }, 950);
     }, 260);
@@ -837,6 +1318,7 @@
   function firstOpen(){
     animating = true;
     hint.style.opacity = '0';
+    envelopeFlip.classList.remove('flipped');
     moveToRest();
     setTimeout(()=>{
       unlocked = true;
@@ -844,9 +1326,52 @@
     }, 600);
   }
 
+  function getEventPoint(ev){
+    if(ev.touches && ev.touches[0]) return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+    if(ev.changedTouches && ev.changedTouches[0]) return { x: ev.changedTouches[0].clientX, y: ev.changedTouches[0].clientY };
+    return { x: ev.clientX, y: ev.clientY };
+  }
+
+  function spawnClickSpark(x, y){
+    const N = 7;
+    for(let i=0;i<N;i++){
+      const ang = (360 / N) * i + (Math.random()*20 - 10);
+      const el = document.createElement('div');
+      el.className = 'click-spark';
+      el.style.setProperty('--x', x + 'px');
+      el.style.setProperty('--y', y + 'px');
+      el.style.setProperty('--ang', ang + 'deg');
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 600);
+    }
+  }
+
+  function spawnConfetti(originX, originY){
+    const colors = ['#e0b8e8', '#8b7ab8', '#f6e6fa', '#8c2f3d', '#f4e8d8'];
+    const N = 28;
+    for(let i=0;i<N;i++){
+      const el = document.createElement('div');
+      el.className = 'confetti-bit';
+      const dx = (Math.random()*2 - 1) * 150;
+      const dy = 130 + Math.random()*170;
+      el.style.setProperty('--x0', originX + 'px');
+      el.style.setProperty('--y0', originY + 'px');
+      el.style.setProperty('--x1', (originX + dx) + 'px');
+      el.style.setProperty('--y1', (originY + dy) + 'px');
+      el.style.setProperty('--spin', (Math.random()*720 - 360) + 'deg');
+      el.style.background = colors[i % colors.length];
+      el.style.borderRadius = Math.random() < 0.5 ? '2px' : '50%';
+      el.style.animationDuration = (1.1 + Math.random()*0.6) + 's';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 1900);
+    }
+  }
+
   function handleEnvelopeTouch(ev){
     ev.preventDefault();
     if(animating) return;
+    const pt = getEventPoint(ev);
+    spawnClickSpark(pt.x, pt.y);
     if(letterOpen){
       closeFlapAndLetter();
       return;
@@ -856,17 +1381,7 @@
       hint.style.opacity = '0';
       return;
     }
-    if(dodges < maxDodges){
-      moveToDodgePosition();
-      dodges++;
-      hint.style.opacity = '0';
-      setTimeout(()=>{
-        hint.innerHTML = dodgeMessages[dodges];
-        hint.style.opacity = '0.88';
-      }, 220);
-    } else {
-      firstOpen();
-    }
+    firstOpen();
   }
 
   function handleCloseTab(ev){
@@ -890,5 +1405,6 @@
     envelopePos.style.top = Math.min(b.maxY, Math.max(b.minY, curY)) + 'px';
   });
 </script>
+</div>
 </body>
 </html>
